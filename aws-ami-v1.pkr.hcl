@@ -11,50 +11,37 @@ packer {
   }
 }
 
-# which ami to use as the base and where to save it
-source "amazon-ebs" "amazon-linux" {
-  region          = "ap-south-1"
-  ami_name        = "ami-version-1.0.1-{{timestamp}}"
-  instance_type   = "t2.micro"
-  source_ami      = "ami-07ff62358b87c7116"
-  ssh_username    = "ec2-user"
-  #ami_users       = ["AWS Account ID"]
-  ami_regions     = [
-                      "ap-south-1"
-                    ]
+source "amazon-ebs" "basic" {
+  region        = "ap-south-1"
+  instance_type = "t2.micro"
+  ssh_username  = "ubuntu"
+
+  source_ami_filter {
+    filters = {
+      name                = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"
+      root-device-type    = "ebs"
+      virtualization-type = "hvm"
+    }
+    owners      = ["099720109477"] # Canonical
+    most_recent = true
+  }
+
+  ami_name = "packer-basic-ami-{{timestamp}}"
 }
+
+
 
 # what to install, configure and file to copy/execute
 build {
-  name = "hq-packer"
-  sources = [
-    "source.amazon-ebs.amazon-linux"
-  ]
-
-  provisioner "file" {
-  source = "provisioner.sh"
-  destination = "/tmp/provisioner.sh"
-}
+  sources = ["source.amazon-ebs.basic"]
 
   provisioner "shell" {
-    inline = ["chmod a+x /tmp/provisioner.sh"]
-  }
-  
-  provisioner "shell" {
-    inline = [ "ls -la /tmp"]
-  }
-  
-    provisioner "shell" {
-    inline = [ "pwd"]
-  }
-  
-  provisioner "shell" {
-    inline = [ "cat /tmp/provisioner.sh"]
-  }
-
-  provisioner "shell" {
-    inline = ["/bin/bash -x /tmp/provisioner.sh"]
+    inline = [
+      "echo 'Hello from Packer'",
+      "sudo apt update -y",
+      "sudo apt install -y nginx",
+      "sudo systemctl enable nginx",
+      "sudo systemctl start nginx"
+    ]
   }
 }
-
-
