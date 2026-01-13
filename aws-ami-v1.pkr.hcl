@@ -5,7 +5,7 @@
 packer {
   required_plugins {
     amazon = {
-      version = ">= 0.0.2"
+      version = ">= 1.0.0"
       source  = "github.com/hashicorp/amazon"
     }
   }
@@ -13,10 +13,10 @@ packer {
 
 # which ami to use as the base and where to save it
 source "amazon-ebs" "amazon-linux" {
-  region          = "ap-southeast-2"
+  region          = "ap-south-1"
   ami_name        = "ami-version-1.0.1-{{timestamp}}"
   instance_type   = "t2.micro"
-  source_ami      = "ami-0d6294dcaac5546e4"
+  source_ami      = "ami-07ff62358b87c7116"
   ssh_username    = "ec2-user"
   #ami_users       = ["AWS Account ID"]
   ami_regions     = [
@@ -56,4 +56,5 @@ build {
     inline = ["/bin/bash -x /tmp/provisioner.sh"]
   }
 }
+
 
